@@ -10,8 +10,12 @@ Prompty is a minimal, powerful menu bar application for macOS.
 
 **For Users:**
 
-1.  **Download** the latest `.dmg` file from the [Releases](https://github.com/benshen94/prompty/releases) page.
-2.  **Open** the `Prompty.dmg` file.
+1.  **Download** the latest version:
+    <br>
+    <a href="https://github.com/benshen94/prompty/releases/latest">
+      <img src="https://img.shields.io/github/v/release/benshen94/prompty?label=Download%20Prompty&style=for-the-badge&color=blue" alt="Download Prompty">
+    </a>
+2.  **Open** the downloaded `Prompty.dmg` file.
 3.  **Drag** the Prompty app into your **Applications** folder.
 4.  Open **Prompty** from your Applications folder.
 
