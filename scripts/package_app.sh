@@ -13,45 +13,41 @@ APP_DIR="$DIST_DIR/$APP_NAME.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
+DMG_PATH="$DIST_DIR/$APP_NAME.dmg"
 
-rm -rf "$APP_DIR"
+echo "🧹 Cleaning up..."
+rm -rf "$DIST_DIR"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
-# Find the most recent built binary from Xcode DerivedData.
-DERIVED_DATA="$HOME/Library/Developer/Xcode/DerivedData"
-BIN_PATH="$(ls -t "$DERIVED_DATA"/*/Build/Products/Release/$APP_NAME "$DERIVED_DATA"/*/Build/Products/Debug/$APP_NAME 2>/dev/null | head -n 1 || true)"
+echo "🔨 Building $APP_NAME..."
+# Build using Swift Package Manager
+swift build -c release --product "$APP_NAME"
 
-if [[ -z "$BIN_PATH" ]]; then
-  echo "Could not find $APP_NAME binary. Build the app in Xcode first (Product -> Build), then re-run." >&2
+# Locate the binary
+BIN_PATH="$ROOT_DIR/.build/release/$APP_NAME"
+
+if [[ ! -f "$BIN_PATH" ]]; then
+  echo "Error: Could not find built binary at $BIN_PATH" >&2
   exit 1
 fi
 
+echo "📦 Packaging App Bundle..."
 cp "$BIN_PATH" "$MACOS_DIR/$APP_NAME"
 chmod +x "$MACOS_DIR/$APP_NAME"
 
-for bundle in "$(dirname "$BIN_PATH")"/*.bundle; do
-  if [[ -d "$bundle" ]]; then
-    rm -rf "$RESOURCES_DIR/$(basename "$bundle")"
-    cp -R "$bundle" "$RESOURCES_DIR/"
-  fi
-done
-
-# Build .icns from the 1024x1024 PNG using Pillow (avoids iconutil issues).
-ICON_BASE="$ROOT_DIR/Sources/PromptBarApp/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png"
-
-if [[ -f "$ICON_BASE" ]]; then
-  python3 - <<PY
-from pathlib import Path
-from PIL import Image
-
-base = Path("${ICON_BASE}")
-out = Path("${RESOURCES_DIR}") / "AppIcon.icns"
-img = Image.open(base)
-img.save(out, sizes=[(16, 16), (32, 32), (64, 64), (128, 128), (256, 256), (512, 512), (1024, 1024)])
-print(f"Wrote {out}")
-PY
+# Convert AppIcon.appiconset to .icns using native iconutil
+ICONSET_SOURCE="$ROOT_DIR/Sources/PromptBarApp/Resources/Assets.xcassets/AppIcon.appiconset"
+if [[ -d "$ICONSET_SOURCE" ]]; then
+    TEMP_ICONSET="$(mktemp -d)/Prompty.iconset"
+    cp -R "$ICONSET_SOURCE/" "$TEMP_ICONSET/"
+    iconutil -c icns "$TEMP_ICONSET" -o "$RESOURCES_DIR/AppIcon.icns"
+    rm -rf "$(dirname "$TEMP_ICONSET")"
+    echo "   Generated AppIcon.icns"
+else
+    echo "   Warning: Icon source not found at $ICONSET_SOURCE"
 fi
 
+# Create Info.plist
 cat > "$CONTENTS_DIR/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -71,8 +67,6 @@ cat > "$CONTENTS_DIR/Info.plist" <<PLIST
   <string>APPL</string>
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
-  <key>NSMainNibFile</key>
-  <string></string>
   <key>CFBundleShortVersionString</key>
   <string>$VERSION</string>
   <key>CFBundleVersion</key>
@@ -89,7 +83,33 @@ cat > "$CONTENTS_DIR/Info.plist" <<PLIST
 </plist>
 PLIST
 
-# Ad-hoc sign the bundle so LaunchServices accepts it.
+# Copy any bundles/resources if they exist (adjust path as needed)
+# Currently copying from adjacent to binary if SPM put them there
+for bundle in "$(dirname "$BIN_PATH")"/*.bundle; do
+  if [[ -d "$bundle" ]]; then
+    cp -R "$bundle" "$RESOURCES_DIR/"
+  fi
+done
+
+# Ad-hoc sign the bundle
+echo "✍️  Signing..."
 codesign --force --deep --sign - "$APP_DIR"
 
-echo "Created: $APP_DIR"
+echo "💿 Creating DMG..."
+# Create a temporary folder for DMG contents
+DMG_TMP_DIR="$(mktemp -d)"
+cp -R "$APP_DIR" "$DMG_TMP_DIR/"
+ln -s /Applications "$DMG_TMP_DIR/Applications"
+
+# Create the DMG
+hdiutil create \
+  -volname "$APP_NAME" \
+  -srcfolder "$DMG_TMP_DIR" \
+  -ov -format UDZO \
+  "$DMG_PATH" \
+  -quiet
+
+# Cleanup
+rm -rf "$DMG_TMP_DIR"
+
+echo "✅ Done! DMG created at: $DMG_PATH"

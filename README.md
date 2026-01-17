@@ -1,27 +1,47 @@
 # Prompty
 
-Prompty is a macOS menu bar app built with SwiftUI.
+Prompty is a minimal, powerful menu bar application for macOS.
 
-## Requirements
-- macOS 13+
-- Xcode 15+ (Swift 5.9)
-- Python 3 with Pillow (used by the packaging script for the app icon)
+<p align="center">
+  <img src="Sources/PromptBarApp/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width="128" height="128" alt="Prompty Icon">
+</p>
 
-## Install
-1. Open `Package.swift` in Xcode and build `Prompty` (Product > Build).
-2. Run:
-   ```bash
-   ./scripts/install_app.sh
-   ```
+## 📥 Installation
 
-## Build/Run From Source
+**For Users:**
+
+1.  **Download** the latest `.dmg` file from the [Releases](https://github.com/benshen94/prompty/releases) page.
+2.  **Open** the `Prompty.dmg` file.
+3.  **Drag** the Prompty app into your **Applications** folder.
+4.  Open **Prompty** from your Applications folder.
+
+*Note: Since this app is not yet notarized by Apple, you may need to Right-Click the app and select "Open" the first time you run it.*
+
+---
+
+## 🛠️ Development
+
+If you want to build the app from source or contribute.
+
+### Requirements
+- macOS 13.0 or later
+- Swift 5.9+ (installed via Xcode or command line tools)
+
+### Building & Running
+
+**Run directly:**
 ```bash
 swift run
 ```
 
-## Package Only
+**Create Standalone App & DMG:**
+This will create `dist/Prompty.dmg` and `dist/Prompty.app`.
 ```bash
 ./scripts/package_app.sh
 ```
 
-Note: the packaging script picks the most recent Xcode build from DerivedData.
+**Install Locally (Dev):**
+Builds and installs directly to your `/Applications` folder.
+```bash
+./scripts/install_app.sh
+```
