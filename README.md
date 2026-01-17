@@ -1,10 +1,33 @@
 # Prompty
 
-Prompty is a minimal, powerful menu bar application for macOS.
+Prompty is a minimal, powerful menu bar application for macOS designed to help you organize and quickly access your frequently used text snippets, AI prompts, and code blocks.
 
 <p align="center">
-  <img src="Sources/PromptBarApp/Resources/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width="128" height="128" alt="Prompty Icon">
+  <img src="preview.png" alt="Prompty Preview" width="600" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 </p>
+
+## 🚀 Features
+
+*   **Global Hotkey:** Access your library instantly from anywhere with `Cmd + Shift + Space` (customizable).
+*   **Organized Library:** Group your prompts into folders with custom icons for better organization.
+*   **Lightning Fast Search:** Type to filter folders or prompts instantly. Keyboard-centric navigation lets you find and copy without lifting your hands.
+*   **One-Click Copy:** Select a prompt and press `Enter` (or double-click) to copy its content directly to your clipboard.
+*   **Beautiful UI:** Native macOS design with a modern "glass" aesthetic.
+*   **Customizable:**
+    *   **Themes:** Light, Dark, or System.
+    *   **Typography:** Choose from System, Avenir Next, Menlo (great for code), or Georgia. Adjust font sizes to your liking.
+    *   **Window:** Adjust window opacity/transparency.
+
+## 💡 How It Works
+
+1.  **Open:** Press the global hotkey (default: `⌘ ⇧ Space`) or click the menu bar icon.
+2.  **Navigate:**
+    *   **Search:** Start typing to filter your folders.
+    *   **Enter Folder:** Press `Enter` on a selected folder to view its prompts.
+    *   **Select Prompt:** Use arrow keys or type to filter prompts within a folder.
+3.  **Act:**
+    *   **Copy:** Press `Enter` on a prompt to copy its text to your clipboard. The window will auto-hide so you can paste immediately.
+    *   **Create:** Use `Cmd + N` to create a new prompt or `Cmd + Shift + N` for a new folder.
 
 ## 📥 Installation
 
